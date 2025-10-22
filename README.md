@@ -51,3 +51,117 @@ cd <repository-name>
 ### 3. ファイルのアップロード
 
 以下のファイルをリポジトリにプッシュ：
+```
+├── .github/
+│   └── workflows/
+│       └── weather-notification.yml
+├── .gitignore
+├── weather_bot.py
+├── requirements.txt
+└── README.md
+```
+
+```bash
+git add .
+git commit -m "Initial commit: Weather bot setup"
+git push origin main
+```
+
+### 4. 動作確認
+
+#### 手動実行でテスト
+
+1. GitHubリポジトリの `Actions` タブを開く
+2. `天気予報配信` ワークフローを選択
+3. `Run workflow` ボタンをクリック
+4. Discordチャンネルに天気予報が届くことを確認
+
+#### 自動実行の確認
+
+- 毎日 日本時間 AM 5:00 に自動実行されます
+- 次回の実行予定は Actions タブで確認できます
+
+## 📊 配信される情報
+
+### 今日・明日の天気（時間ごと）
+- 🌡️ **気温**：摂氏（°C）
+- 💧 **湿度**：パーセント（%）
+- 💨 **風速**：メートル毎秒（m/s）
+- ☀️ **天候**：晴れ、曇り、雨など（絵文字付き）
+
+### 5日間予報
+- 📅 **日付**：月日と曜日
+- 🌡️ **気温範囲**：最低気温 ~ 最高気温
+- ☁️ **天候**：その日の代表的な天気
+
+## 🛠️ カスタマイズ
+
+### 配信時刻の変更
+
+`.github/workflows/weather-notification.yml` の cron 式を編集：
+```yaml
+schedule:
+  # 例：日本時間 AM 7:00 にする場合 (UTC 22:00)
+  - cron: '0 22 * * *'
+```
+
+### 表示する時間数の変更
+
+`weather_bot.py` の以下の部分を編集：
+```python
+for hour in today_hourly[:8]:  # 8を好きな数字に変更
+```
+
+### メッセージのカスタマイズ
+
+`create_discord_embed()` 関数内で、Embedの色やテキストを自由に変更できます：
+```python
+embed = {
+    "title": "🌤️ 今日の天気予報",  # タイトルを変更
+    "color": 3447003,  # 色を変更（10進数カラーコード）
+    # ...
+}
+```
+
+## 🔧 トラブルシューティング
+
+### エラー：401 Unauthorized
+- OpenWeather APIキーが正しいか確認
+- APIキーが有効化されているか確認（取得後、数時間かかる場合があります）
+
+### エラー：404 Not Found (Discord)
+- Discord Webhook URLが正しいか確認
+- Webhookが削除されていないか確認
+
+### 天気情報が届かない
+1. Actions タブでワークフローの実行ログを確認
+2. Secretsが正しく設定されているか確認
+3. リポジトリがPublicになっているか確認
+
+### 時刻がずれる
+- cron式はUTC基準です
+- 日本時間 (JST) = UTC + 9時間
+- 例：JST 05:00 = UTC 20:00（前日）
+
+## 📝 使用しているAPI
+
+- **Current Weather Data API**: 現在の天気情報
+- **5 Day / 3 Hour Forecast API**: 5日間・3時間ごとの予報データ
+
+無料プラン（Free tier）で利用可能です。
+
+## 📄 ライセンス
+
+MIT License
+
+## 🤝 貢献
+
+Issue や Pull Request を歓迎します！
+
+## 📞 サポート
+
+問題が発生した場合は、Issueを作成してください。
+
+---
+
+**Enjoy your weather forecasts! 🌈**
