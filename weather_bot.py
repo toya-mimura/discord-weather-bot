@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 OpenWeather API を使用して気象情報を取得し、Discord Webhook に送信するスクリプト
-超コンパクト版：テーブル風フォーマット
+改善版：コンパクトで見やすいフォーマット
 """
 
 import os
@@ -116,23 +116,23 @@ def parse_daily_summary(data_list):
     return summary
 
 
-def format_hourly_table(hourly_data, max_hours=5):
-    """時間ごとデータをテーブル形式で整形（超コンパクト）"""
+def format_hourly_compact(hourly_data, max_hours=6):
+    """時間ごとデータをコンパクトに整形（1行形式）"""
     if not hourly_data:
         return "データなし"
     
     lines = []
     for hour in hourly_data[:max_hours]:
         emoji = get_weather_emoji(hour['weather_id'])
-        # さらにコンパクトな1行形式
-        line = f"`{hour['time']}` {emoji} **{hour['temp']}°C** 💧{hour['humidity']}% 💨{hour['wind_speed']}m/s"
+        # 1行にまとめる
+        line = f"**{hour['time']}** {emoji} {hour['temp']}°C 💧{hour['humidity']}% 💨{hour['wind_speed']}m/s"
         lines.append(line)
     
     return "\n".join(lines)
 
 
 def create_discord_embed(weather_data):
-    """Discord用のEmbedメッセージを作成（超コンパクト版）"""
+    """Discord用のEmbedメッセージを作成（改善版）"""
     now = datetime.now(JST)
     today = now.date()
     tomorrow = today + timedelta(days=1)
@@ -150,7 +150,7 @@ def create_discord_embed(weather_data):
     # Embedの作成
     embed = {
         "title": "☀️ 今日の天気予報",
-        "description": f"**{today.strftime('%Y年%m月%d日 (%A)')}** | 📍 {city_name}",
+        "description": f"**{today.strftime('%Y年%m月%d日 (%A)')}** | {city_name}",
         "color": 3447003,
         "fields": [],
         "footer": {
@@ -159,42 +159,35 @@ def create_discord_embed(weather_data):
         "timestamp": now.isoformat()
     }
     
-    # 今日と明日の天気を横並びに
-    if today_hourly and tomorrow_hourly:
-        # 今日
-        today_text = format_hourly_table(today_hourly, max_hours=5)
+    # 今日の天気（コンパクト版）
+    if today_hourly:
+        today_text = format_hourly_compact(today_hourly, max_hours=6)
         embed["fields"].append({
-            "name": "📅 今日",
-            "value": today_text,
-            "inline": True
-        })
-        
-        # 明日
-        tomorrow_text = format_hourly_table(tomorrow_hourly, max_hours=5)
-        embed["fields"].append({
-            "name": f"📅 明日 ({tomorrow.strftime('%m/%d')})",
-            "value": tomorrow_text,
-            "inline": True
-        })
-    elif today_hourly:
-        today_text = format_hourly_table(today_hourly, max_hours=5)
-        embed["fields"].append({
-            "name": "📅 今日",
+            "name": "📅 今日の天気（時間ごと）",
             "value": today_text,
             "inline": False
         })
     
-    # 5日間の概要（1行で表示）
+    # 明日の天気（コンパクト版）
+    if tomorrow_hourly:
+        tomorrow_text = format_hourly_compact(tomorrow_hourly, max_hours=6)
+        embed["fields"].append({
+            "name": f"📅 明日の天気 - {tomorrow.strftime('%m/%d (%a)')}",
+            "value": tomorrow_text,
+            "inline": False
+        })
+    
+    # 5日間の概要（よりコンパクトに）
     if daily_summary:
         summary_lines = []
         for day in daily_summary:
             emoji = get_weather_emoji(day['weather_id'])
             summary_lines.append(
-                f"`{day['date']}` {emoji} **{day['temp_min']}〜{day['temp_max']}°C**"
+                f"**{day['date']}** {emoji} {day['temp_min']}°C〜{day['temp_max']}°C {day['weather']}"
             )
         
         embed["fields"].append({
-            "name": "📊 週間天気",
+            "name": "📊 5日間の天気予報",
             "value": "\n".join(summary_lines),
             "inline": False
         })
