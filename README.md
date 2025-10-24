@@ -15,6 +15,7 @@ OpenWeather APIを使用して、毎朝5時（日本時間）にDiscordへ天気
 1. **OpenWeather APIキー**
    - [OpenWeatherMap](https://openweathermap.org/api)で無料アカウントを作成
    - APIキーを取得（Free tierで十分です）
+   - APIキーの取得の仕方は[こちら](https://toyaworks.substack.com/i/172839771/openweatherowmについて)に記事を書いておきました
 
 2. **Discord Webhook URL**
    - Discordサーバーの設定から「連携サービス」→「ウェブフック」を作成
